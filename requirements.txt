@@ -1,0 +1,11 @@
+numpy
+matplotlib
+scipy
+shapely
+noise
+pyqt6; platform_system != 'Windows' and platform_system != 'Darwin'
+pyqt5; platform_system == 'Windows' or platform_system == 'Darwin'
+ipywidgets
+jupyterlab_widgets
+# Optional for packaging
+pyinstaller
