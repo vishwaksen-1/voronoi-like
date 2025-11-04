@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi
 from shapely.geometry import Polygon, box, MultiPolygon
 from noise import pnoise2
+import os
+import pathlib
 
 try:
     from PyQt6 import QtWidgets, QtCore
@@ -202,21 +204,43 @@ class VoronoiWidget(QtWidgets.QWidget):
         self.update_plot()
 
     def on_save(self):
-        filters = "PNG Image (*.png);;SVG Image (*.svg);;PDF File (*.pdf)"
-        options = QtWidgets.QFileDialog.Options()
         try:
-            fname, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save figure", "voronoi.png", filters, options=options)
-        except TypeError:
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save figure", "voronoi.png", filters)
-            if isinstance(fname, tuple):
-                fname = fname[0]
-        if not fname:
-            return
-        try:
-            self.figure.savefig(fname, dpi=300, bbox_inches='tight')
-            QtWidgets.QMessageBox.information(self, "Saved", f"Saved figure to:\n{fname}")
+            from datetime import datetime
+
+            now = datetime.now()
+            ts_folder = now.strftime('%d_%m_%y_%H_%M')
+            ts_file = now.strftime('%d_%m_%y_%H_%M_%S')
+
+            base_dir = pathlib.Path(__file__).resolve().parent
+            save_dir = base_dir / f"saved plots {ts_folder}"
+            save_dir.mkdir(parents=True, exist_ok=True)
+
+            out_fname = save_dir / f"Voronoi_{ts_file}.svg"
+
+            # Ensure the current axes show the full [0,1] box and save the whole figure
+            try:
+                # Force limits on both axes to ensure square box is visible
+                for ax in (self.axes if hasattr(self, 'axes') else [plt.gca()]):
+                    try:
+                        ax.set_xlim(0, 1)
+                        ax.set_ylim(0, 1)
+                    except Exception:
+                        pass
+
+                # Save the existing Matplotlib figure (both subplots) as a single SVG
+                self.figure.savefig(str(out_fname), format='svg', bbox_inches='tight')
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save figure:\n{e}")
+                try:
+                    plt.close('all')
+                except Exception:
+                    pass
+                return
+
+            self.setWindowTitle("Saved ✅")
+            QtWidgets.QMessageBox.information(self, "Saved", f"Saved figure to:\n{out_fname}")
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save figure:\n{e}")
+            QtWidgets.QMessageBox.critical(self, "Save error", f"Unexpected error during save:\n{e}")
 
 
 def main():
