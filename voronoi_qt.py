@@ -66,7 +66,7 @@ def warp_vertices(poly, scale=0.05, freq=3.0):
         return None
 
 
-def plot_polygons(ax, polys, title):
+def plot_polygons(ax, polys, title, linewidth=0.8):
     ax.cla()
     ax.set_aspect('equal')
     ax.set_xlim(0, 1)
@@ -78,10 +78,10 @@ def plot_polygons(ax, polys, title):
         if poly is None or poly.is_empty or not hasattr(poly, 'exterior'):
             continue
         x, y = poly.exterior.xy
-        ax.plot(x, y, 'k-', linewidth=0.8)
+        ax.plot(x, y, 'k-', linewidth=linewidth)
 
 
-def _save_single_svg(polys, title, out_path, fmt='svg', size=(6, 6)):
+def _save_single_svg(polys, title, out_path, fmt='svg', size=(6, 6), linewidth=0.8):
     """Render polygons onto a single-axis figure and save as SVG.
 
     This creates a temporary Matplotlib figure so we don't disturb the
@@ -100,7 +100,7 @@ def _save_single_svg(polys, title, out_path, fmt='svg', size=(6, 6)):
         if poly is None or poly.is_empty or not hasattr(poly, 'exterior'):
             continue
         x, y = poly.exterior.xy
-        ax.plot(x, y, 'k-', linewidth=0.8)
+        ax.plot(x, y, 'k-', linewidth=linewidth)
     try:
         actual_fmt = 'jpeg' if fmt == 'jpg' else fmt
         fig.savefig(str(out_path), format=actual_fmt, bbox_inches='tight')
@@ -120,6 +120,10 @@ class VoronoiWidget(QtWidgets.QWidget):
         self.npoints_spin.setValue(20)
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.save_btn = QtWidgets.QPushButton("Save...")
+        self.linewidth_spin = QtWidgets.QDoubleSpinBox()
+        self.linewidth_spin.setRange(0.1, 10.0)
+        self.linewidth_spin.setSingleStep(0.1)
+        self.linewidth_spin.setValue(0.8)
         self.format_combo = QtWidgets.QComboBox()
         self.format_combo.addItems(['svg', 'png', 'jpg'])
         # default to jpg
@@ -162,6 +166,8 @@ class VoronoiWidget(QtWidgets.QWidget):
         top_controls.addWidget(self.seed_spin)
         top_controls.addWidget(QtWidgets.QLabel("Points:"))
         top_controls.addWidget(self.npoints_spin)
+        top_controls.addWidget(QtWidgets.QLabel("Line width:"))
+        top_controls.addWidget(self.linewidth_spin)
         top_controls.addWidget(self.refresh_btn)
         top_controls.addWidget(self.save_btn)
         top_controls.addWidget(QtWidgets.QLabel("Format:"))
@@ -178,6 +184,11 @@ class VoronoiWidget(QtWidgets.QWidget):
         self.setLayout(layout)
         self.scale_slider.valueChanged.connect(self.on_slider_change)
         self.freq_slider.valueChanged.connect(self.on_slider_change)
+        # update on linewidth change as well
+        try:
+            self.linewidth_spin.valueChanged.connect(self.update_plot)
+        except Exception:
+            pass
         self.refresh_btn.clicked.connect(self.on_refresh)
         self.save_btn.clicked.connect(self.on_save)
         self.regenerate_points()
@@ -210,8 +221,9 @@ class VoronoiWidget(QtWidgets.QWidget):
                         warped_polys.extend(p for p in warped.geoms if p.is_valid and p.area > 0)
             except Exception:
                 continue
-        plot_polygons(self.axes[0], self.polys, "Original Voronoi")
-        plot_polygons(self.axes[1], warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})")
+        lw = float(self.linewidth_spin.value()) if hasattr(self, 'linewidth_spin') else 0.8
+        plot_polygons(self.axes[0], self.polys, "Original Voronoi", linewidth=lw)
+        plot_polygons(self.axes[1], warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", linewidth=lw)
         self.canvas.draw()
 
     def regenerate_points(self):
@@ -284,8 +296,9 @@ class VoronoiWidget(QtWidgets.QWidget):
         orig_name = save_dir / f"Voronoi_original_{ts_file}.{fmt}"
         warped_name = save_dir / f"Voronoi_warped_{ts_file}.{fmt}"
         try:
-            _save_single_svg(self.polys, "Original Voronoi", orig_name, fmt=fmt)
-            _save_single_svg(warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", warped_name, fmt=fmt)
+            lw = float(self.linewidth_spin.value()) if hasattr(self, 'linewidth_spin') else 0.8
+            _save_single_svg(self.polys, "Original Voronoi", orig_name, fmt=fmt, linewidth=lw)
+            _save_single_svg(warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", warped_name, fmt=fmt, linewidth=lw)
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save SVGs:\n{e}")
             return
