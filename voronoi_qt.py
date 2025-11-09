@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi
 from shapely.geometry import Polygon, box, MultiPolygon
 from noise import pnoise2
-import os
-import pathlib
 
 try:
     from PyQt6 import QtWidgets, QtCore
@@ -81,6 +79,32 @@ def plot_polygons(ax, polys, title):
             continue
         x, y = poly.exterior.xy
         ax.plot(x, y, 'k-', linewidth=0.8)
+
+
+def _save_single_svg(polys, title, out_path, size=(6, 6)):
+    """Render polygons onto a single-axis figure and save as SVG.
+
+    This creates a temporary Matplotlib figure so we don't disturb the
+    embedded GUI figure, renders the polygons with the same axis limits
+    and aspect, saves to `out_path` (string or Path), and closes the
+    temporary figure to free resources.
+    """
+    fig, ax = plt.subplots(1, 1, figsize=size)
+    ax.set_aspect('equal')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_title(title)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for poly in polys:
+        if poly is None or poly.is_empty or not hasattr(poly, 'exterior'):
+            continue
+        x, y = poly.exterior.xy
+        ax.plot(x, y, 'k-', linewidth=0.8)
+    try:
+        fig.savefig(str(out_path), format='svg', bbox_inches='tight')
+    finally:
+        plt.close(fig)
 
 
 class VoronoiWidget(QtWidgets.QWidget):
@@ -204,43 +228,60 @@ class VoronoiWidget(QtWidgets.QWidget):
         self.update_plot()
 
     def on_save(self):
+        # Build timestamped save directory next to this script
         try:
+            from pathlib import Path
             from datetime import datetime
-
-            now = datetime.now()
-            ts_folder = now.strftime('%d_%m_%y_%H_%M')
-            ts_file = now.strftime('%d_%m_%y_%H_%M_%S')
-
-            base_dir = pathlib.Path(__file__).resolve().parent
-            save_dir = base_dir / f"saved plots {ts_folder}"
+        except Exception:
+            QtWidgets.QMessageBox.critical(self, "Save error", "Required modules for saving are missing.")
+            return
+        script_dir = Path(__file__).resolve().parent
+        now = datetime.now()
+        folder_ts = now.strftime("%d_%m_%y_%H_%M")
+        save_dir = script_dir / f"saved plots {folder_ts}"
+        try:
             save_dir.mkdir(parents=True, exist_ok=True)
-
-            out_fname = save_dir / f"Voronoi_{ts_file}.svg"
-
-            # Ensure the current axes show the full [0,1] box and save the whole figure
-            try:
-                # Force limits on both axes to ensure square box is visible
-                for ax in (self.axes if hasattr(self, 'axes') else [plt.gca()]):
-                    try:
-                        ax.set_xlim(0, 1)
-                        ax.set_ylim(0, 1)
-                    except Exception:
-                        pass
-
-                # Save the existing Matplotlib figure (both subplots) as a single SVG
-                self.figure.savefig(str(out_fname), format='svg', bbox_inches='tight')
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save figure:\n{e}")
-                try:
-                    plt.close('all')
-                except Exception:
-                    pass
-                return
-
-            self.setWindowTitle("Saved ✅")
-            QtWidgets.QMessageBox.information(self, "Saved", f"Saved figure to:\n{out_fname}")
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Save error", f"Unexpected error during save:\n{e}")
+            QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to create save directory:\n{e}")
+            return
+
+        # compute current warped polygons using present slider settings
+        scale = self.scale_slider.value() / 1000.0
+        freq = self.freq_slider.value() / 100.0
+        warped_polys = []
+        for poly in self.polys:
+            try:
+                warped = warp_vertices(poly, scale=scale, freq=freq)
+                if warped:
+                    warped = warped.intersection(self.bbox)
+                    if not warped.is_valid:
+                        warped = warped.buffer(0)
+                    if warped.is_empty:
+                        continue
+                    if isinstance(warped, Polygon):
+                        warped_polys.append(warped)
+                    elif isinstance(warped, MultiPolygon):
+                        warped_polys.extend(p for p in warped.geoms if p.is_valid and p.area > 0)
+            except Exception:
+                continue
+
+        # Save original and warped separately as SVGs
+        ts_file = now.strftime("%d_%m_%y_%H_%M_%S")
+        orig_name = save_dir / f"Voronoi_original_{ts_file}.svg"
+        warped_name = save_dir / f"Voronoi_warped_{ts_file}.svg"
+        try:
+            _save_single_svg(self.polys, "Original Voronoi", orig_name)
+            _save_single_svg(warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", warped_name)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save SVGs:\n{e}")
+            return
+
+        # Feedback to user
+        try:
+            self.setWindowTitle("Saved ✅")
+            QtWidgets.QMessageBox.information(self, "Saved", f"Saved files:\n{orig_name}\n{warped_name}")
+        except Exception:
+            pass
 
 
 def main():
