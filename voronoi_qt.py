@@ -51,18 +51,48 @@ def voronoi_polygons(vor, bbox=box(0, 0, 1, 1)):
     return regions
 
 
-def warp_vertices(poly, scale=0.05, freq=3.0):
+def warp_vertices(poly, scale=0.05, freq=3.0, bbox=None):
+    """Warp polygon exterior vertices with Perlin noise.
+
+    Vertices that lie on the bbox boundary (if provided) are left clamped
+    to the boundary so they don't move inside the unit square. This helps
+    keep the same number of regions at the edges.
+    """
     if poly is None or poly.is_empty or not hasattr(poly, 'exterior'):
         return None
     coords = np.array(poly.exterior.coords)
     warped = []
+    # bbox bounds
+    if bbox is not None:
+        try:
+            minx, miny, maxx, maxy = bbox.bounds
+        except Exception:
+            minx, miny, maxx, maxy = 0.0, 0.0, 1.0, 1.0
+    else:
+        minx, miny, maxx, maxy = 0.0, 0.0, 1.0, 1.0
+    atol = 1e-8
     for x, y in coords:
+        # if the vertex is on the bbox boundary, keep it clamped to that edge
+        on_left = abs(x - minx) <= atol
+        on_right = abs(x - maxx) <= atol
+        on_bottom = abs(y - miny) <= atol
+        on_top = abs(y - maxy) <= atol
+        if on_left or on_right or on_bottom or on_top:
+            # clamp coordinates exactly to the bbox edge to avoid drifting inward
+            cx = min(max(x, minx), maxx)
+            cy = min(max(y, miny), maxy)
+            warped.append([cx, cy])
+            continue
+
         dx = pnoise2(x * freq, y * freq, octaves=2, persistence=0.5, lacunarity=2.0)
         dy = pnoise2((x + 10) * freq, (y + 10) * freq, octaves=2, persistence=0.5, lacunarity=2.0)
         warped.append([x + dx * scale, y + dy * scale])
     try:
-        return Polygon(warped)
-    except ValueError:
+        p = Polygon(warped)
+        if not p.is_valid:
+            p = p.buffer(0)
+        return p
+    except Exception:
         return None
 
 
@@ -208,7 +238,7 @@ class VoronoiWidget(QtWidgets.QWidget):
         warped_polys = []
         for poly in self.polys:
             try:
-                warped = warp_vertices(poly, scale=scale, freq=freq)
+                warped = warp_vertices(poly, scale=scale, freq=freq, bbox=self.bbox)
                 if warped:
                     warped = warped.intersection(self.bbox)
                     if not warped.is_valid:
@@ -272,7 +302,7 @@ class VoronoiWidget(QtWidgets.QWidget):
         warped_polys = []
         for poly in self.polys:
             try:
-                warped = warp_vertices(poly, scale=scale, freq=freq)
+                warped = warp_vertices(poly, scale=scale, freq=freq, bbox=self.bbox)
                 if warped:
                     warped = warped.intersection(self.bbox)
                     if not warped.is_valid:
