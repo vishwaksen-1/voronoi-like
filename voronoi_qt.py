@@ -81,7 +81,7 @@ def plot_polygons(ax, polys, title):
         ax.plot(x, y, 'k-', linewidth=0.8)
 
 
-def _save_single_svg(polys, title, out_path, size=(6, 6)):
+def _save_single_svg(polys, title, out_path, fmt='svg', size=(6, 6)):
     """Render polygons onto a single-axis figure and save as SVG.
 
     This creates a temporary Matplotlib figure so we don't disturb the
@@ -102,7 +102,8 @@ def _save_single_svg(polys, title, out_path, size=(6, 6)):
         x, y = poly.exterior.xy
         ax.plot(x, y, 'k-', linewidth=0.8)
     try:
-        fig.savefig(str(out_path), format='svg', bbox_inches='tight')
+        actual_fmt = 'jpeg' if fmt == 'jpg' else fmt
+        fig.savefig(str(out_path), format=actual_fmt, bbox_inches='tight')
     finally:
         plt.close(fig)
 
@@ -119,6 +120,12 @@ class VoronoiWidget(QtWidgets.QWidget):
         self.npoints_spin.setValue(20)
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.save_btn = QtWidgets.QPushButton("Save...")
+        self.format_combo = QtWidgets.QComboBox()
+        self.format_combo.addItems(['svg', 'png', 'jpg'])
+        # default to jpg
+        idx = self.format_combo.findText('jpg')
+        if idx >= 0:
+            self.format_combo.setCurrentIndex(idx)
         self.points = None
         self.vor = None
         self.polys = []
@@ -157,6 +164,8 @@ class VoronoiWidget(QtWidgets.QWidget):
         top_controls.addWidget(self.npoints_spin)
         top_controls.addWidget(self.refresh_btn)
         top_controls.addWidget(self.save_btn)
+        top_controls.addWidget(QtWidgets.QLabel("Format:"))
+        top_controls.addWidget(self.format_combo)
         controls = QtWidgets.QHBoxLayout()
         controls.addWidget(self.scale_label)
         controls.addWidget(self.scale_slider)
@@ -265,13 +274,18 @@ class VoronoiWidget(QtWidgets.QWidget):
             except Exception:
                 continue
 
-        # Save original and warped separately as SVGs
-        ts_file = now.strftime("%d_%m_%y_%H_%M_%S")
-        orig_name = save_dir / f"Voronoi_original_{ts_file}.svg"
-        warped_name = save_dir / f"Voronoi_warped_{ts_file}.svg"
+        # Save original and warped separately using selected format
+        fmt = 'svg'
         try:
-            _save_single_svg(self.polys, "Original Voronoi", orig_name)
-            _save_single_svg(warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", warped_name)
+            fmt = str(self.format_combo.currentText()).lower()
+        except Exception:
+            pass
+        ts_file = now.strftime("%d_%m_%y_%H_%M_%S")
+        orig_name = save_dir / f"Voronoi_original_{ts_file}.{fmt}"
+        warped_name = save_dir / f"Voronoi_warped_{ts_file}.{fmt}"
+        try:
+            _save_single_svg(self.polys, "Original Voronoi", orig_name, fmt=fmt)
+            _save_single_svg(warped_polys, f"Warped (s={scale:.3f}, f={freq:.2f})", warped_name, fmt=fmt)
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Save error", f"Failed to save SVGs:\n{e}")
             return
