@@ -10,6 +10,8 @@ backend, so it runs as a native desktop app on Linux, macOS and Windows.
 - `voronoi.ipynb` — the original notebook (ipywidgets cell was removed to avoid frontend issues).
 - `run_voronoi.py` — small launcher that checks the environment and runs the GUI.
 - `requirements.txt` — recommended dependencies to install in a virtual environment.
+ - `stimMaker.py` — small helper to convert saved Voronoi image pairs into
+   square, bordered stimuli suitable for experiments (see below).
 
 # Supported platforms
 - Linux (X11/Wayland with a working Qt + GUI environment)
@@ -58,3 +60,48 @@ python voronoi_qt.py
 - Windows
   - Pip installs wheels for PyQt5/6; no additional steps usually required.
   - If you get backend errors from Matplotlib, ensure the default backend is a Qt backend (QtAgg). The launcher will try to set this.
+
+## Generating experiment stimuli with stimMaker.py
+
+The repository includes a small post-processing helper `stimMaker.py` that
+turns your saved Voronoi image pairs into counterbalanced, neutral-looking
+stimuli suitable for experiments (it crops to a square, applies a coloured
+border and an outer white padding, and organizes results into per-pair
+folders).
+
+Usage steps
+
+1. Create and name matching Voronoi image pairs you want to convert. For
+  example: `Voronoi_original_pair1.jpg` and `Voronoi_warped_pair1.jpg`, then
+  `Voronoi_original_pair2.jpg` / `Voronoi_warped_pair2.jpg`, and so on.
+
+   IMPORTANT: The GUI saves files using a timestamped name (for example
+   `Voronoi_original_01_01_23_12_00_00.svg` or similar). Before running
+   `stimMaker.py` you should rename each GUI output to the pattern the
+   script expects (``Voronoi_original_pairN.jpg`` and
+   ``Voronoi_warped_pairN.jpg``). The script processes JPG files, so if
+   your GUI output is SVG or PNG convert or export them to JPG first.
+2. Place all pairs in a single directory. In the example project we used a
+  folder called `dasFoto/`. Update the `INPUT_DIR` variable at the top of
+  `stimMaker.py` if you use a different folder.
+3. Run the script (no command-line arguments required):
+
+```bash
+python stimMaker.py
+```
+
+4. To tune appearance:
+  - Change `COLOR_BORDER_WIDTH` in `stimMaker.py` to adjust the coloured
+    border thickness (pixels).
+  - Change `MM_WHITE_BORDER` to modify the white padding around the coloured
+    square (value is in millimetres; DPI is configured by `DPI`).
+
+Output
+
+The script writes a `pair_<n>` folder for each pair it processes and saves a
+clean cropped image plus two bordered variants (one per colour defined in
+`BORDER_COLORS`).
+
+This tool is intentionally small — if you'd like I can add command-line
+arguments to control `INPUT_DIR`, border size, output format, or to run
+only a single pair.
