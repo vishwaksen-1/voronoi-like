@@ -18,7 +18,7 @@ VERT_OFFSET = 12        # move crop box down (pixels)
 SCALE = 0.95              # amount of image width/height to keep
 
 # Borders
-COLOR_BORDER_WIDTH = 12   # px around the square
+COLOR_BORDER_WIDTH = 6   # px around the square
 MM_WHITE_BORDER = 5       # white border (mm)
 DPI = 300                 # used for mm → px conversion
 
