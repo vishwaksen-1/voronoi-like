@@ -25,6 +25,7 @@ DPI = 300                 # used for mm → px conversion
 BORDER_COLORS = {
     "orange": (255, 173, 91),
     "blue":   (128, 192, 255),
+    "clean":  (0, 0, 0) # black border 
 }
 
 def mm_to_px(mm, dpi=DPI):
@@ -81,9 +82,9 @@ def main():
         # Step 1 — Square crop
         sq = square_crop(img)
 
-        # Save clean cropped version (no borders)
-        base_clean = os.path.join(out_dir, fname.replace(".jpg", "_clean.jpg"))
-        sq.save(base_clean)
+        # # Save clean cropped version (no borders)
+        # base_clean = os.path.join(out_dir, fname.replace(".jpg", "_clean.jpg"))
+        # sq.save(base_clean)
 
         # Step 2 & 3 — Colored border → white padding
         for cname, rgb in BORDER_COLORS.items():
