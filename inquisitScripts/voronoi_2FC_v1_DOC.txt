@@ -1,0 +1,388 @@
+================================================================================
+VORONOI PATTERN 2-FORCED CHOICE TASK - DOCUMENTATION
+================================================================================
+
+SCRIPT FILE: voronoi_2fc_task.iqx
+Created: 2024
+Platform: Inquisit 6 or higher
+Author: Vishwaksen
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Overview
+2. Required Files
+3. How to Run the Script
+4. Customizing Parameters
+5. Understanding the Experimental Structure
+6. Data Output Explanation
+7. Troubleshooting
+8. Next Steps for Data Analysis
+
+================================================================================
+1. OVERVIEW
+================================================================================
+
+This script implements a 2-Forced Choice (2FC) task to measure implicit 
+preferences for Voronoi patterns. Participants view pairs of images and 
+select their preferred pattern.
+
+KEY FEATURES:
+- Two experimental conditions: Related Pairs vs Random Pairs
+- Configurable trial count (20, 40, or 80 trials per block)
+- Counterbalanced presentation (left/right position randomized)
+- Self-paced responses (no time limit)
+- Works with mouse clicks or keyboard (E/I keys)
+- Automatic adaptation for touchscreen devices
+
+DURATION: ~10-15 minutes (depending on M_multiplier setting)
+
+================================================================================
+2. REQUIRED FILES
+================================================================================
+
+FOLDER STRUCTURE:
+Place all files in the SAME FOLDER. Your folder should contain:
+
+1. voronoi_2fc_task.iqx (the main script file)
+
+2. Image files (40 total):
+   - Voronoi_original_pair1.jpg
+   - Voronoi_original_pair2.jpg
+   - ...
+   - Voronoi_original_pair20.jpg
+   - Voronoi_warped_pair1.jpg
+   - Voronoi_warped_pair2.jpg
+   - ...
+   - Voronoi_warped_pair20.jpg
+
+IMPORTANT: All files must be in the same directory for Inquisit to find them.
+
+IMAGE REQUIREMENTS:
+- Format: JPG (recommended), PNG also supported
+- Size: Any size (script will resize to 35% of screen height by default)
+- Naming: MUST follow exact naming convention above
+- Relationship: pair1 original/warped are related, pair2 original/warped
+  are related, etc.
+
+================================================================================
+3. HOW TO RUN THE SCRIPT
+================================================================================
+
+OPTION 1: TESTING LOCALLY (Inquisit Lab)
+-----------------------------------------
+1. Install Inquisit Lab from https://www.millisecond.com/download/
+2. Place voronoi_2fc_task.iqx and all 40 images in the same folder
+3. Double-click voronoi_2fc_task.iqx
+4. Select "Run" when prompted
+5. Enter participant ID, group ID (1 or 2), and session ID
+6. Complete the task
+
+OPTION 2: DEPLOYING ON PROLIFIC (Inquisit Web)
+-----------------------------------------------
+1. Create an account at Millisecond.com
+2. Upload the script and images to Inquisit Web
+3. Create a study link
+4. Post the study link on Prolific
+5. Data will be collected automatically online
+
+For detailed Prolific integration instructions, see:
+https://www.millisecond.com/support/docs/v6/html/howto/prolific.htm
+
+================================================================================
+4. CUSTOMIZING PARAMETERS
+================================================================================
+
+EDITABLE PARAMETERS (lines 34-62 in the script):
+
+/ M_multiplier = 2
+--------------------
+Controls number of trials per block.
+- Set to 1 for 20 trials per block (40 total trials)
+- Set to 2 for 40 trials per block (80 total trials) [DEFAULT]
+- Set to 4 for 80 trials per block (160 total trials)
+
+/ stimSize = 35%
+-----------------
+Image size as percentage of screen height.
+- Recommended range: 30-40%
+- Larger values = bigger images (may not fit on smaller screens)
+- Smaller values = smaller images (may be hard to see details)
+
+/ fixationDuration = 500
+-------------------------
+Duration of fixation cross in milliseconds.
+- Default: 500ms (half a second)
+- Can be removed entirely by setting showFixation = false
+
+/ leftKey = "e"
+/ rightKey = "i"
+----------------
+Keyboard response keys.
+- Default: E (left) and I (right)
+- Can be changed to any letter key
+- Keep them far apart to avoid confusion
+
+/ questionPrompt = "Which pattern do you prefer?"
+--------------------------------------------------
+The question shown on each trial.
+- Current: "Which pattern do you prefer?"
+- Alternative suggestions:
+  * "Which pattern appears more natural?"
+  * "Which pattern appears more organized?"
+  * "Which pattern do you find more appealing?"
+
+EDIT THESE IN THE SCRIPT before running!
+
+================================================================================
+5. UNDERSTANDING THE EXPERIMENTAL STRUCTURE
+================================================================================
+
+THE EXPERIMENT HAS 4 PHASES:
+
+PHASE 1: PRACTICE BLOCK (3 trials)
+-----------------------------------
+- Familiarizes participants with the task
+- Uses pairs 1, 5, and 10 as examples
+- Data NOT recorded (for practice only)
+
+PHASE 2: RELATED PAIRS BLOCK (M × 20 trials)
+---------------------------------------------
+- Presents MATCHED pairs: original_pair[i] vs warped_pair[i]
+- Example: original_pair3.jpg vs warped_pair3.jpg
+- Tests preference for original vs warped of THE SAME pattern
+- Position (left/right) randomized for each trial
+- Order of pairs shuffled
+
+PHASE 3: RANDOM PAIRS BLOCK (M × 20 trials)
+--------------------------------------------
+- Presents MISMATCHED pairs: original_pair[i] vs warped_pair[j] (i ≠ j)
+- Example: original_pair7.jpg vs warped_pair15.jpg
+- Tests general category preference (original vs warped patterns)
+- Constraint: original and warped are NEVER from the same pair number
+- Position (left/right) randomized for each trial
+- Random pairings generated at start of block
+
+PHASE 4: FINISH SCREEN
+----------------------
+- Thanks participant
+- Displays for 3 seconds
+
+RANDOMIZATION DETAILS:
+- Pair presentation order: Shuffled within each block
+- Left/right position: 50/50 randomization for each trial
+- Random pairs: Generated fresh for each participant
+- Each pair appears exactly M times per block
+
+COUNTERBALANCING:
+- Position bias controlled by randomizing original/warped to left/right
+- Order effects minimized by shuffling trial sequence
+- Optional: Use group ID to counterbalance block order
+  * Group 1: Related → Random
+  * Group 2: Random → Related
+
+================================================================================
+6. DATA OUTPUT EXPLANATION
+================================================================================
+
+TWO DATA FILES ARE CREATED:
+
+FILE 1: RAW DATA (trial-by-trial)
+----------------------------------
+Filename: voronoi_2fc_task_raw_[subjectID]_[date]_[time].iqdat
+
+KEY COLUMNS:
+- subject, group, session: Participant identifiers
+- blockcode: Which block (practice/relatedPairs/randomPairs)
+- trialcode: Specific trial type (e.g., relatedPairs_origLeft)
+- currentTrialType: "practice", "related", or "random"
+- currentOriginalIndex: Which original image (1-20)
+- currentWarpedIndex: Which warped image (1-20)
+- stimulusitem (2 columns): Filenames of the two images shown
+- response: What participant clicked/pressed
+- responseCode: 
+    * 1 = selected ORIGINAL
+    * -1 = selected WARPED
+- originalPosition: "left" or "right"
+- latency: Response time in milliseconds
+
+ANALYSIS TIPS:
+- Filter by currentTrialType to separate related vs random trials
+- responseCode = 1 means preference for original
+- Compare proportion of responseCode=1 between related/random blocks
+
+FILE 2: SUMMARY DATA (one row per participant)
+-----------------------------------------------
+Filename: voronoi_2fc_task_summary_[subjectID]_[date]_[time].iqdat
+
+KEY COLUMNS:
+- M_multiplier: Trial count setting used
+- totalTrialsPerBlock: M × 20
+- relatedBlock_originalCount: # times original selected in related block
+- relatedBlock_warpedCount: # times warped selected in related block
+- relatedBlock_proportionOriginal: Proportion (0.0 to 1.0)
+- meanLatency_related: Average response time in related block (ms)
+- randomBlock_originalCount: # times original selected in random block
+- randomBlock_warpedCount: # times warped selected in random block
+- randomBlock_proportionOriginal: Proportion (0.0 to 1.0)
+- meanLatency_random: Average response time in random block (ms)
+- completed: 1 if finished, 0 if aborted
+
+QUICK ANALYSIS:
+- If relatedBlock_proportionOriginal > 0.5: Preference for originals 
+  in related pairs
+- If randomBlock_proportionOriginal > 0.5: General preference for 
+  originals over warped
+- Compare the two proportions to see if preference differs by condition
+
+DATA LOCATION:
+By default, data saved in a "data" subfolder in the same directory as
+the script.
+
+================================================================================
+7. TROUBLESHOOTING
+================================================================================
+
+PROBLEM: "Cannot find image file" error
+SOLUTION: 
+- Ensure ALL 40 image files are in the SAME folder as the .iqx script
+- Check that filenames match EXACTLY (case-sensitive)
+- Verify file extensions are .jpg (not .jpeg or .JPG)
+
+PROBLEM: Script won't run / validation errors
+SOLUTION:
+- Ensure you're using Inquisit 6 or higher
+- Check that all 40 images are present
+- Try opening in Inquisit Lab and check the Message List for errors
+
+PROBLEM: Images appear too small/large
+SOLUTION:
+- Adjust the stimSize parameter (line 42)
+- Try values between 30-45%
+
+PROBLEM: Participants confused about task
+SOLUTION:
+- Edit instruction pages (lines 1112-1157)
+- Modify questionPrompt parameter to be clearer
+- Add more practice trials (change line 1066: values.trialCount_practice >= 3
+  to a higher number)
+
+PROBLEM: Data file won't open
+SOLUTION:
+- Open .iqdat files with Inquisit Lab
+- Or convert to CSV: File → Export Data → Select file → Choose CSV format
+- Can then open in Excel, SPSS, R, Python, etc.
+
+PROBLEM: Need to restart participant mid-task
+SOLUTION:
+- Press Ctrl+Q to abort current run
+- Data up to abort point will be saved
+- Can restart with same participant ID if needed
+
+================================================================================
+8. NEXT STEPS FOR DATA ANALYSIS
+================================================================================
+
+STEP 1: COLLECT DATA
+--------------------
+- Run minimum 30-50 participants for adequate power
+- More participants = more reliable results
+
+STEP 2: MERGE DATA FILES
+-------------------------
+If collecting from multiple participants:
+1. Open Inquisit Lab
+2. File → Merge Data Files
+3. Select all raw data files
+4. Save merged file
+
+STEP 3: EXPORT TO CSV
+---------------------
+1. Open merged data file in Inquisit Lab
+2. File → Export Data
+3. Choose CSV format
+4. Now compatible with Excel, R, SPSS, Python
+
+STEP 4: STATISTICAL ANALYSIS
+-----------------------------
+
+PRIMARY ANALYSES:
+
+1. RELATED PAIRS: One-sample t-test or binomial test
+   H0: Proportion = 0.5 (no preference)
+   H1: Proportion ≠ 0.5 (preference exists)
+   
+   In R:
+   binom.test(sum(data$responseCode[data$currentTrialType=="related"]==1), 
+              length(data$responseCode[data$currentTrialType=="related"]), 
+              p=0.5)
+
+2. RANDOM PAIRS: One-sample t-test or binomial test
+   Same as above but filter for currentTrialType=="random"
+
+3. COMPARISON: Paired t-test or McNemar's test
+   H0: No difference in preference between related and random conditions
+   H1: Preference differs between conditions
+   
+   In R:
+   related_prop <- aggregate(responseCode ~ subject, 
+                             data[data$currentTrialType=="related",], 
+                             mean)
+   random_prop <- aggregate(responseCode ~ subject, 
+                            data[data$currentTrialType=="random",], 
+                            mean)
+   t.test(related_prop$responseCode, random_prop$responseCode, paired=TRUE)
+
+SECONDARY ANALYSES:
+- Response time analysis (latency)
+- Individual differences
+- Learning effects (early vs late trials)
+- Position bias check
+
+VISUALIZATION SUGGESTIONS:
+- Bar plot: Proportion original selected (related vs random)
+- Box plot: Response times by condition
+- Individual participant trajectories
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+
+Inquisit Documentation:
+https://www.millisecond.com/support/docs/v6/
+
+Inquisit Community Forum:
+https://www.millisecond.com/forums/
+
+Millisecond Support:
+support@millisecond.com
+
+Prolific Integration Guide:
+https://www.millisecond.com/support/docs/v6/html/howto/prolific.htm
+
+================================================================================
+CITATION
+================================================================================
+
+If you use this script in published research, please cite:
+
+[Your research paper citation here]
+
+And consider citing:
+Millisecond Software (2024). Inquisit 6 [Computer software]. 
+Seattle, WA: Millisecond Software LLC.
+
+================================================================================
+QUESTIONS OR MODIFICATIONS NEEDED?
+================================================================================
+
+Contact: vishwaksen.rdy@gmail.com
+GitHub: vishwaksen-1
+
+Version: 1.0
+Last Updated: 13-Feb-2026
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
