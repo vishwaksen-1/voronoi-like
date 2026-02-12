@@ -1,0 +1,867 @@
+***********************************************************************************************************
+***********************************************************************************************************
+	VORONOI PATTERN 2-FORCED CHOICE (2FC) TASK
+***********************************************************************************************************
+***********************************************************************************************************
+
+Script Author: Vishwaksen Reddy D
+Created: 02/02/2026
+Last Updated: 13/02/2026
+
+Script Purpose:
+This script implements a 2-Forced Choice task to measure implicit preferences for Voronoi patterns.
+Participants view pairs of images (Original vs Warped Voronoi patterns) and select their preferred image.
+
+The experiment includes TWO conditions:
+1. RELATED PAIRS: Original_pair[i] vs Warped_pair[i] (same structural base, warped transformation)
+2. RANDOM PAIRS: Original_pair[i] vs Warped_pair[j] where i ≠ j (structurally independent)
+
+Key Features:
+- Configurable trial count via M_multiplier parameter (M × 20 trials per block)
+- Counterbalanced left/right position
+- Separate logging for related vs random trial types
+- Self-paced responses (no timeout by default)
+- Works with mouse clicks or keyboard (E/I keys)
+
+Duration: ~10-15 minutes (depending on M parameter)
+
+***********************************************************************************************************
+***********************************************************************************************************
+	EDITABLE PARAMETERS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<parameters>
+/ M_multiplier = 2
+// Determines number of trials per block: M × 20
+// Set to 1 for 20 trials, 2 for 40 trials, 4 for 80 trials per block
+
+/ stimSize = 35%
+// Image size as percentage of screen height
+
+/ fixationDuration = 500
+// Duration of fixation cross in milliseconds
+
+/ leftKey = "e"
+// Keyboard key for selecting left image
+
+/ rightKey = "i"
+// Keyboard key for selecting right image
+
+/ questionPrompt = "Which pattern do you prefer?"
+// Question displayed during trials (can be edited later)
+
+/ showFixation = true
+// Set to false to remove fixation cross
+
+/ includeRestScreen = true
+// Set to false to remove rest screen between blocks
+</parameters>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	AUTOMATICALLY UPDATED VALUES
+***********************************************************************************************************
+***********************************************************************************************************
+
+<values>
+// Trial counting
+/ trialCount_practice = 0
+/ trialCount_related = 0
+/ trialCount_random = 0
+
+// Current trial information
+/ currentOriginalIndex = 0
+/ currentWarpedIndex = 0
+/ currentTrialType = ""
+/ originalPosition = ""
+/ positionCode = 0
+// 1 = Left, 2 = Right (used for branching logic)
+
+// Response coding
+/ responseCode = 0
+// 1 = selected original, -1 = selected warped
+
+// Summary statistics for related block
+/ relatedBlock_originalCount = 0
+/ relatedBlock_warpedCount = 0
+/ relatedBlock_totalLatency = 0
+
+// Summary statistics for random block
+/ randomBlock_originalCount = 0
+/ randomBlock_warpedCount = 0
+/ randomBlock_totalLatency = 0
+
+// Random pairing storage (for random block)
+/ randomPair_1 = 0
+/ randomPair_2 = 0
+/ randomPair_3 = 0
+/ randomPair_4 = 0
+/ randomPair_5 = 0
+/ randomPair_6 = 0
+/ randomPair_7 = 0
+/ randomPair_8 = 0
+/ randomPair_9 = 0
+/ randomPair_10 = 0
+/ randomPair_11 = 0
+/ randomPair_12 = 0
+/ randomPair_13 = 0
+/ randomPair_14 = 0
+/ randomPair_15 = 0
+/ randomPair_16 = 0
+/ randomPair_17 = 0
+/ randomPair_18 = 0
+/ randomPair_19 = 0
+/ randomPair_20 = 0
+</values>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	EXPRESSIONS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<expressions>
+// Calculate total number of trials per block
+/ totalTrialsPerBlock = parameters.M_multiplier * 20
+
+// Calculate proportion of original selections in related block
+/ relatedBlock_proportionOriginal = values.relatedBlock_originalCount / values.trialCount_related
+
+// Calculate proportion of original selections in random block
+/ randomBlock_proportionOriginal = values.randomBlock_originalCount / values.trialCount_random
+
+// Calculate mean latency in related block
+/ meanLatency_related = values.relatedBlock_totalLatency / values.trialCount_related
+
+// Calculate mean latency in random block
+/ meanLatency_random = values.randomBlock_totalLatency / values.trialCount_random
+
+// Get warped pair number for current random trial
+/ currentRandomWarpedPair = if (values.currentOriginalIndex == 1) {
+		values.randomPair_1;
+	} else if (values.currentOriginalIndex == 2) {
+		values.randomPair_2;
+	} else if (values.currentOriginalIndex == 3) {
+		values.randomPair_3;
+	} else if (values.currentOriginalIndex == 4) {
+		values.randomPair_4;
+	} else if (values.currentOriginalIndex == 5) {
+		values.randomPair_5;
+	} else if (values.currentOriginalIndex == 6) {
+		values.randomPair_6;
+	} else if (values.currentOriginalIndex == 7) {
+		values.randomPair_7;
+	} else if (values.currentOriginalIndex == 8) {
+		values.randomPair_8;
+	} else if (values.currentOriginalIndex == 9) {
+		values.randomPair_9;
+	} else if (values.currentOriginalIndex == 10) {
+		values.randomPair_10;
+	} else if (values.currentOriginalIndex == 11) {
+		values.randomPair_11;
+	} else if (values.currentOriginalIndex == 12) {
+		values.randomPair_12;
+	} else if (values.currentOriginalIndex == 13) {
+		values.randomPair_13;
+	} else if (values.currentOriginalIndex == 14) {
+		values.randomPair_14;
+	} else if (values.currentOriginalIndex == 15) {
+		values.randomPair_15;
+	} else if (values.currentOriginalIndex == 16) {
+		values.randomPair_16;
+	} else if (values.currentOriginalIndex == 17) {
+		values.randomPair_17;
+	} else if (values.currentOriginalIndex == 18) {
+		values.randomPair_18;
+	} else if (values.currentOriginalIndex == 19) {
+		values.randomPair_19;
+	} else if (values.currentOriginalIndex == 20) {
+		values.randomPair_20;
+	}
+</expressions>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	STIMULI - IMAGE ITEMS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<item originalImages>
+/ 1 = "Voronoi_original_pair1.jpg"
+/ 2 = "Voronoi_original_pair2.jpg"
+/ 3 = "Voronoi_original_pair3.jpg"
+/ 4 = "Voronoi_original_pair4.jpg"
+/ 5 = "Voronoi_original_pair5.jpg"
+/ 6 = "Voronoi_original_pair6.jpg"
+/ 7 = "Voronoi_original_pair7.jpg"
+/ 8 = "Voronoi_original_pair8.jpg"
+/ 9 = "Voronoi_original_pair9.jpg"
+/ 10 = "Voronoi_original_pair10.jpg"
+/ 11 = "Voronoi_original_pair11.jpg"
+/ 12 = "Voronoi_original_pair12.jpg"
+/ 13 = "Voronoi_original_pair13.jpg"
+/ 14 = "Voronoi_original_pair14.jpg"
+/ 15 = "Voronoi_original_pair15.jpg"
+/ 16 = "Voronoi_original_pair16.jpg"
+/ 17 = "Voronoi_original_pair17.jpg"
+/ 18 = "Voronoi_original_pair18.jpg"
+/ 19 = "Voronoi_original_pair19.jpg"
+/ 20 = "Voronoi_original_pair20.jpg"
+</item>
+
+<item warpedImages>
+/ 1 = "Voronoi_warped_pair1.jpg"
+/ 2 = "Voronoi_warped_pair2.jpg"
+/ 3 = "Voronoi_warped_pair3.jpg"
+/ 4 = "Voronoi_warped_pair4.jpg"
+/ 5 = "Voronoi_warped_pair5.jpg"
+/ 6 = "Voronoi_warped_pair6.jpg"
+/ 7 = "Voronoi_warped_pair7.jpg"
+/ 8 = "Voronoi_warped_pair8.jpg"
+/ 9 = "Voronoi_warped_pair9.jpg"
+/ 10 = "Voronoi_warped_pair10.jpg"
+/ 11 = "Voronoi_warped_pair11.jpg"
+/ 12 = "Voronoi_warped_pair12.jpg"
+/ 13 = "Voronoi_warped_pair13.jpg"
+/ 14 = "Voronoi_warped_pair14.jpg"
+/ 15 = "Voronoi_warped_pair15.jpg"
+/ 16 = "Voronoi_warped_pair16.jpg"
+/ 17 = "Voronoi_warped_pair17.jpg"
+/ 18 = "Voronoi_warped_pair18.jpg"
+/ 19 = "Voronoi_warped_pair19.jpg"
+/ 20 = "Voronoi_warped_pair20.jpg"
+</item>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	STIMULI - PICTURE ELEMENTS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<picture originalLeft>
+/ items = originalImages
+/ select = values.currentOriginalIndex
+/ position = (25%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+<picture originalRight>
+/ items = originalImages
+/ select = values.currentOriginalIndex
+/ position = (75%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+<picture warpedLeft>
+/ items = warpedImages
+/ select = values.currentWarpedIndex
+/ position = (25%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+<picture warpedRight>
+/ items = warpedImages
+/ select = values.currentWarpedIndex
+/ position = (75%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	STIMULI - TEXT ELEMENTS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<text fixationCross>
+/ items = ("+")
+/ fontstyle = ("Arial", 5%)
+/ position = (50%, 50%)
+/ txcolor = white
+</text>
+
+<text trialInstructions>
+/ items = ("<%parameters.questionPrompt%>")
+/ fontstyle = ("Arial", 2.5%)
+/ position = (50%, 15%)
+/ txcolor = white
+</text>
+
+<text responseReminder>
+/ items = ("Press E (left) or I (right) or click on your preferred image")
+/ fontstyle = ("Arial", 2%)
+/ position = (50%, 85%)
+/ txcolor = (180, 180, 180)
+</text>
+
+<text finishMessage>
+/ items = ("Thank you for completing this task!")
+/ fontstyle = ("Arial", 3%)
+/ position = (50%, 50%)
+/ txcolor = white
+</text>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	LISTS - RANDOMIZATION AND SELECTION
+***********************************************************************************************************
+***********************************************************************************************************
+
+// ===== PRACTICE BLOCK LISTS =====
+<list practice_itemNumbers>
+/ poolsize = 3
+/ items = (1, 5, 10)
+// Using pairs 1, 5, and 10 for practice
+/ selectionrate = always
+</list>
+
+<list practice_positionSelector>
+/ items = (1, 2)
+// 1 = original on left, 2 = original on right
+/ poolsize = 3
+/ replace = false
+/ selectionrate = always
+</list>
+
+// ===== RELATED PAIRS BLOCK LISTS =====
+<list relatedPairs_itemNumbers>
+/ poolsize = expressions.totalTrialsPerBlock
+/ replace = false
+/ selectionrate = always
+</list>
+
+<list relatedPairs_positionSelector>
+/ items = (1, 2)
+// 1 = original on left, 2 = original on right
+/ poolsize = expressions.totalTrialsPerBlock
+/ replace = false
+/ selectionrate = always
+</list>
+
+// ===== RANDOM PAIRS BLOCK LISTS =====
+<list randomPairs_originalNumbers>
+/ poolsize = expressions.totalTrialsPerBlock
+/ replace = false
+/ selectionrate = always
+</list>
+
+<list randomPairs_positionSelector>
+/ items = (1, 2)
+// 1 = original on left, 2 = original on right
+/ poolsize = expressions.totalTrialsPerBlock
+/ replace = false
+/ selectionrate = always
+</list>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	TRIALS - PRACTICE BLOCK
+***********************************************************************************************************
+***********************************************************************************************************
+
+<trial practice_selector>
+/ ontrialbegin = [
+	values.trialCount_practice += 1;
+	values.currentTrialType = "practice";
+
+    // 1. Select the items here (instead of in the stimulus trial)
+    values.currentOriginalIndex = list.practice_itemNumbers.nextvalue;
+    values.currentWarpedIndex = values.currentOriginalIndex;
+
+    // 2. Select the position here
+    values.positionCode = list.practice_positionSelector.nextvalue;
+    if (values.positionCode == 1) values.originalPosition = "left";
+    else values.originalPosition = "right";
+]
+/ trialduration = 0
+/ recorddata = false
+/ branch = [
+    // Go to fixation trial first
+	return trial.practice_fixation;
+]
+</trial>
+
+<trial practice_fixation>
+/ stimulusframes = [1=fixationCross]
+/ trialduration = parameters.fixationDuration
+/ recorddata = false
+/ branch = [
+    // Branch to the correct visual layout based on the code selected in the Selector trial
+    if (values.positionCode == 1) return trial.practice_origLeft;
+    else return trial.practice_origRight;
+]
+</trial>
+
+<trial practice_origLeft>
+// No dynamic insertions. Just show the frames immediately.
+/ stimulusframes = [1 = originalLeft, warpedRight, trialInstructions, responseReminder]
+// Removed explicit mouse input device to allow mixed input (keys + click)
+/ validresponse = (originalLeft, warpedRight, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.practice_origLeft.response == "originalLeft" || trial.practice_origLeft.response == parameters.leftKey) {
+		values.responseCode = 1;
+	} else {
+		values.responseCode = -1;
+	}
+]
+/ branch = [
+	return trial.practice_selector;
+]
+</trial>
+
+<trial practice_origRight>
+/ stimulusframes = [1 = originalRight, warpedLeft, trialInstructions, responseReminder]
+// Removed explicit mouse input device to allow mixed input (keys + click)
+/ validresponse = (originalRight, warpedLeft, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.practice_origRight.response == "originalRight" || trial.practice_origRight.response == parameters.rightKey) {
+		values.responseCode = 1;
+	} else {
+		values.responseCode = -1;
+	}
+]
+/ branch = [
+	return trial.practice_selector;
+]
+</trial>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	TRIALS - RELATED PAIRS BLOCK
+***********************************************************************************************************
+***********************************************************************************************************
+
+<trial relatedPairs_selector>
+/ ontrialbegin = [
+	values.trialCount_related += 1;
+	values.currentTrialType = "related";
+
+    // Select items
+    values.currentOriginalIndex = list.relatedPairs_itemNumbers.nextvalue;
+    values.currentWarpedIndex = values.currentOriginalIndex;
+
+    // Select position
+    values.positionCode = list.relatedPairs_positionSelector.nextvalue;
+    if (values.positionCode == 1) values.originalPosition = "left";
+    else values.originalPosition = "right";
+]
+/ trialduration = 0
+/ recorddata = false
+/ branch = [
+	return trial.related_fixation;
+]
+</trial>
+
+<trial related_fixation>
+/ stimulusframes = [1=fixationCross]
+/ trialduration = parameters.fixationDuration
+/ recorddata = false
+/ branch = [
+    if (values.positionCode == 1) return trial.relatedPairs_origLeft;
+    else return trial.relatedPairs_origRight;
+]
+</trial>
+
+<trial relatedPairs_origLeft>
+/ stimulusframes = [1 = originalLeft, warpedRight, trialInstructions, responseReminder]
+/ validresponse = (originalLeft, warpedRight, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.relatedPairs_origLeft.response == "originalLeft" || trial.relatedPairs_origLeft.response == parameters.leftKey) {
+		values.responseCode = 1;
+		values.relatedBlock_originalCount += 1;
+	} else {
+		values.responseCode = -1;
+		values.relatedBlock_warpedCount += 1;
+	}
+	values.relatedBlock_totalLatency += trial.relatedPairs_origLeft.latency;
+]
+/ branch = [
+	return trial.relatedPairs_selector;
+]
+</trial>
+
+<trial relatedPairs_origRight>
+/ stimulusframes = [1 = originalRight, warpedLeft, trialInstructions, responseReminder]
+/ validresponse = (originalRight, warpedLeft, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.relatedPairs_origRight.response == "originalRight" || trial.relatedPairs_origRight.response == parameters.rightKey) {
+		values.responseCode = 1;
+		values.relatedBlock_originalCount += 1;
+	} else {
+		values.responseCode = -1;
+		values.relatedBlock_warpedCount += 1;
+	}
+	values.relatedBlock_totalLatency += trial.relatedPairs_origRight.latency;
+]
+/ branch = [
+	return trial.relatedPairs_selector;
+]
+</trial>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	TRIALS - RANDOM PAIRS BLOCK
+***********************************************************************************************************
+***********************************************************************************************************
+
+<trial randomPairs_selector>
+/ ontrialbegin = [
+	values.trialCount_random += 1;
+	values.currentTrialType = "random";
+
+    // Select position
+    values.positionCode = list.randomPairs_positionSelector.nextvalue;
+    if (values.positionCode == 1) values.originalPosition = "left";
+    else values.originalPosition = "right";
+
+    // Select items (Expression depends on currentOriginalIndex, so set it first)
+    values.currentOriginalIndex = list.randomPairs_originalNumbers.nextvalue;
+    values.currentWarpedIndex = expressions.currentRandomWarpedPair;
+]
+/ trialduration = 0
+/ recorddata = false
+/ branch = [
+	return trial.random_fixation;
+]
+</trial>
+
+<trial random_fixation>
+/ stimulusframes = [1=fixationCross]
+/ trialduration = parameters.fixationDuration
+/ recorddata = false
+/ branch = [
+    if (values.positionCode == 1) return trial.randomPairs_origLeft;
+    else return trial.randomPairs_origRight;
+]
+</trial>
+
+<trial randomPairs_origLeft>
+/ stimulusframes = [1 = originalLeft, warpedRight, trialInstructions, responseReminder]
+/ validresponse = (originalLeft, warpedRight, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.randomPairs_origLeft.response == "originalLeft" || trial.randomPairs_origLeft.response == parameters.leftKey) {
+		values.responseCode = 1;
+		values.randomBlock_originalCount += 1;
+	} else {
+		values.responseCode = -1;
+		values.randomBlock_warpedCount += 1;
+	}
+	values.randomBlock_totalLatency += trial.randomPairs_origLeft.latency;
+]
+/ branch = [
+	return trial.randomPairs_selector;
+]
+</trial>
+
+<trial randomPairs_origRight>
+/ stimulusframes = [1 = originalRight, warpedLeft, trialInstructions, responseReminder]
+/ validresponse = (originalRight, warpedLeft, parameters.leftKey, parameters.rightKey)
+/ ontrialend = [
+	if (trial.randomPairs_origRight.response == "originalRight" || trial.randomPairs_origRight.response == parameters.rightKey) {
+		values.responseCode = 1;
+		values.randomBlock_originalCount += 1;
+	} else {
+		values.responseCode = -1;
+		values.randomBlock_warpedCount += 1;
+	}
+	values.randomBlock_totalLatency += trial.randomPairs_origRight.latency;
+]
+/ branch = [
+	return trial.randomPairs_selector;
+]
+</trial>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	TRIAL - FINISH
+***********************************************************************************************************
+***********************************************************************************************************
+
+<trial finish>
+/ stimulusframes = [1 = finishMessage]
+/ timeout = 3000
+/ recorddata = false
+</trial>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	BLOCKS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<block practice>
+/ preinstructions = (welcome, practiceInstructions)
+/ stop = [
+	values.trialCount_practice >= 3
+]
+/ trials = [1 = trial.practice_selector]
+</block>
+
+<block relatedPairs>
+/ preinstructions = (mainTaskInstructions)
+/ stop = [
+	values.trialCount_related >= expressions.totalTrialsPerBlock
+]
+/ trials = [1 = trial.relatedPairs_selector]
+/ onblockbegin = [
+	// Initialize related pairs list with shuffled sequence
+	var i = 1;
+	var repetition = 1;
+
+	while (repetition <= parameters.M_multiplier) {
+		i = 1;
+		while (i <= 20) {
+			list.relatedPairs_itemNumbers.appenditem(i);
+			i += 1;
+		}
+		repetition += 1;
+	}
+]
+</block>
+
+<block randomPairs>
+/ preinstructions = (continue)
+/ stop = [
+	values.trialCount_random >= expressions.totalTrialsPerBlock
+]
+/ trials = [1 = trial.randomPairs_selector]
+/ onblockbegin = [
+	// Generate random pairings ensuring i ≠ j
+	// For each original image (1-20), randomly assign a different warped image
+
+	var tempList_warped = 0;
+	var origIndex = 1;
+	var warpedIndex = 0;
+	var repetition = 1;
+
+	// For each repetition (M times)
+	while (repetition <= parameters.M_multiplier) {
+
+		// Reset for each repetition
+		origIndex = 1;
+
+		// For each original image (1-20)
+		while (origIndex <= 20) {
+
+			// Select a random warped image index that is NOT equal to origIndex
+			warpedIndex = rand(1, 20);
+			while (warpedIndex == origIndex) {
+				warpedIndex = rand(1, 20);
+			}
+
+			// Store the pairing
+			if (origIndex == 1) {
+				values.randomPair_1 = warpedIndex;
+			} else if (origIndex == 2) {
+				values.randomPair_2 = warpedIndex;
+			} else if (origIndex == 3) {
+				values.randomPair_3 = warpedIndex;
+			} else if (origIndex == 4) {
+				values.randomPair_4 = warpedIndex;
+			} else if (origIndex == 5) {
+				values.randomPair_5 = warpedIndex;
+			} else if (origIndex == 6) {
+				values.randomPair_6 = warpedIndex;
+			} else if (origIndex == 7) {
+				values.randomPair_7 = warpedIndex;
+			} else if (origIndex == 8) {
+				values.randomPair_8 = warpedIndex;
+			} else if (origIndex == 9) {
+				values.randomPair_9 = warpedIndex;
+			} else if (origIndex == 10) {
+				values.randomPair_10 = warpedIndex;
+			} else if (origIndex == 11) {
+				values.randomPair_11 = warpedIndex;
+			} else if (origIndex == 12) {
+				values.randomPair_12 = warpedIndex;
+			} else if (origIndex == 13) {
+				values.randomPair_13 = warpedIndex;
+			} else if (origIndex == 14) {
+				values.randomPair_14 = warpedIndex;
+			} else if (origIndex == 15) {
+				values.randomPair_15 = warpedIndex;
+			} else if (origIndex == 16) {
+				values.randomPair_16 = warpedIndex;
+			} else if (origIndex == 17) {
+				values.randomPair_17 = warpedIndex;
+			} else if (origIndex == 18) {
+				values.randomPair_18 = warpedIndex;
+			} else if (origIndex == 19) {
+				values.randomPair_19 = warpedIndex;
+			} else if (origIndex == 20) {
+				values.randomPair_20 = warpedIndex;
+			}
+
+			// Add this original index to the trial list
+			list.randomPairs_originalNumbers.appenditem(origIndex);
+
+			origIndex += 1;
+		}
+
+		repetition += 1;
+	}
+]
+</block>
+
+<block finish>
+/ trials = [1 = trial.finish]
+</block>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	EXPERIMENT
+***********************************************************************************************************
+***********************************************************************************************************
+
+<expt voronoi2FC>
+/ blocks = [
+	1 = practice;
+	2 = relatedPairs;
+	3 = randomPairs;
+	4 = finish;
+]
+</expt>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	INSTRUCTION PAGES
+***********************************************************************************************************
+***********************************************************************************************************
+
+<instruct>
+/ fontstyle = ("Arial", 2.5%)
+/ txcolor = white
+/ windowsize = (90%, 90%)
+</instruct>
+
+<page welcome>
+^^Welcome to this study!
+^^In this task, you will view pairs of visual patterns.
+^^Your task is to select the pattern that you prefer in each pair.
+^^
+Press SPACE to continue.
+</page>
+
+<page practiceInstructions>
+^^INSTRUCTIONS
+^^
+You will see two patterns side-by-side.
+^^
+For each pair, select the pattern that you PREFER.
+^^
+^^HOW TO RESPOND:
+^• Click on the image you prefer, OR
+^• Press E for the LEFT image
+^• Press I for the RIGHT image
+^^
+Please respond based on your first impression.
+There are no right or wrong answers.
+^^
+Let's start with a few practice trials.
+^^
+Press SPACE when ready.
+</page>
+
+<page mainTaskInstructions>
+^^You will now begin the main task.
+^^
+Remember: Select the pattern you PREFER by clicking on it
+or pressing E (left) or I (right).
+^^
+^^The task will take approximately 5-10 minutes.
+^^
+Press SPACE when ready to begin.
+</page>
+
+<page continue>
+^^Great work!
+^^
+You're partway through the task.
+^^
+The next section will be similar.
+^^
+Take a brief break if needed, then press SPACE to continue.
+</page>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	DATA
+***********************************************************************************************************
+***********************************************************************************************************
+
+<data>
+/ columns = (
+	build,
+	computer.platform,
+	date,
+	time,
+	subject,
+	group,
+	session,
+	blockcode,
+	blocknum,
+	trialcode,
+	trialnum,
+	values.currentTrialType,
+	values.trialCount_practice,
+	values.trialCount_related,
+	values.trialCount_random,
+	values.currentOriginalIndex,
+	values.currentWarpedIndex,
+	stimulusitem,
+	stimulusitem,
+	response,
+	values.responseCode,
+	values.originalPosition,
+	latency
+)
+</data>
+
+<summarydata>
+/ columns = (
+	inquisit.version,
+	computer.platform,
+	script.startdate,
+	script.starttime,
+	script.subjectid,
+	script.groupid,
+	script.sessionid,
+	script.elapsedtime,
+	script.completed,
+	parameters.M_multiplier,
+	expressions.totalTrialsPerBlock,
+	values.relatedBlock_originalCount,
+	values.relatedBlock_warpedCount,
+	expressions.relatedBlock_proportionOriginal,
+	expressions.meanLatency_related,
+	values.randomBlock_originalCount,
+	values.randomBlock_warpedCount,
+	expressions.randomBlock_proportionOriginal,
+	expressions.meanLatency_random
+)
+</summarydata>
+
+***********************************************************************************************************
+***********************************************************************************************************
+	DEFAULTS
+***********************************************************************************************************
+***********************************************************************************************************
+
+<defaults>
+/ canvasaspectratio = (4, 3)
+/ fontstyle = ("Arial", 2%)
+/ screencolor = black
+/ txcolor = white
+</defaults>
+
+***********************************************************************************************************
+													End of File
+***********************************************************************************************************

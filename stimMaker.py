@@ -74,7 +74,7 @@ def main():
         if pair_num is None:
             continue
 
-        out_dir = f"pair_{pair_num}"
+        out_dir = f"pairs/pair_{pair_num}"
         os.makedirs(out_dir, exist_ok=True)
 
         img = Image.open(os.path.join(INPUT_DIR, fname))
