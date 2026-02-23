@@ -1,0 +1,873 @@
+***********************************************************************************************************
+***********************************************************************************************************
+	VORONOI PATTERN BORDER-COLOR 2FC TASK
+	Based on Technical Manual v1.0
+***********************************************************************************************************
+***********************************************************************************************************
+
+Script Author: Environmental Neuroscience Research Team
+Created: February 2025
+Platform: Inquisit 7
+
+***********************************************************************************************************
+	EDITABLE PARAMETERS
+***********************************************************************************************************
+
+<parameters>
+/ stimSize = 60%
+/ fixationDuration = 500
+/ questionPrompt = "Which pattern do you prefer?"
+/ showFixation = true
+/ includeRestScreen = true
+</parameters>
+
+***********************************************************************************************************
+	LISTS
+***********************************************************************************************************
+
+// Basic Pair ID list (1-20)
+<list pairIDs>
+/ items = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+/ replace = false
+</list>
+
+<list borderTypes>
+/ items = (0, 1, 2)
+/ replace = false
+</list>
+
+<list patternTypes>
+/ items = (0, 1)
+/ replace = false
+</list>
+
+<list positions>
+/ items = (1, 2)
+/ replace = true
+</list>
+
+<list borderCombos_2A>
+/ items = (1, 2, 3, 4, 5, 6)
+/ replace = false
+</list>
+
+<list borderCombos_1B>
+/ items = (1, 2, 3)
+/ replace = false
+</list>
+
+***********************************************************************************************************
+	AUTOMATICALLY UPDATED VALUES
+***********************************************************************************************************
+
+<values>
+/ currentBlockType = ""
+/ currentTrialType = ""
+/ trialCount_total = 0
+/ trialCount_practice = 0
+/ trialCount_block1A = 0
+/ trialCount_block1B = 0
+/ trialCount_block2A = 0
+/ trialCount_block2B = 0
+/ currentLeftIndex = 1
+/ currentRightIndex = 1
+/ currentOriginalIndex = 0
+/ currentWarpedIndex = 0
+/ currentOriginalBorder = ""
+/ currentWarpedBorder = ""
+/ selectPairID = 0
+/ selectBorderType = 0
+/ selectPatternType = 0
+/ selectBorderCombo = 0
+/ selectPosition = 0
+/ originalPosition = ""
+/ responseCode = 0
+/ borderResponseCode = ""
+/ block1A_originalCount = 0
+/ block1A_warpedCount = 0
+/ block1A_totalLatency = 0
+/ block1B_cleanCount = 0
+/ block1B_blueCount = 0
+/ block1B_orangeCount = 0
+/ block1B_totalLatency = 0
+/ block2A_originalCount = 0
+/ block2A_warpedCount = 0
+/ block2A_totalLatency = 0
+/ block2B_originalCount = 0
+/ block2B_warpedCount = 0
+/ block2B_totalLatency = 0
+</values>
+
+***********************************************************************************************************
+	EXPRESSIONS
+***********************************************************************************************************
+
+<expressions>
+// Standard Math.max used to safely prevent division by zero in Javascript expression engine
+
+/ block1A_proportionOriginal = values.block1A_originalCount / Math.max(values.trialCount_block1A, 1)
+/ block1B_proportionClean = values.block1B_cleanCount / Math.max(values.trialCount_block1B, 1)
+/ block1B_proportionBlue = values.block1B_blueCount / Math.max(values.trialCount_block1B, 1)
+/ block1B_proportionOrange = values.block1B_orangeCount / Math.max(values.trialCount_block1B, 1)
+/ block2A_proportionOriginal = values.block2A_originalCount / Math.max(values.trialCount_block2A, 1)
+/ block2B_proportionOriginal = values.block2B_originalCount / Math.max(values.trialCount_block2B, 1)
+
+// Mean Latencies
+/ meanLatency_block1A = values.block1A_totalLatency / Math.max(values.trialCount_block1A, 1)
+/ meanLatency_block1B = values.block1B_totalLatency / Math.max(values.trialCount_block1B, 1)
+/ meanLatency_block2A = values.block2A_totalLatency / Math.max(values.trialCount_block2A, 1)
+/ meanLatency_block2B = values.block2B_totalLatency / Math.max(values.trialCount_block2B, 1)
+
+// Helper for Image Calculation
+/ calcOriginalIndex = (values.selectBorderType * 20) + values.selectPairID
+/ calcWarpedIndex = 60 + (values.selectBorderType * 20) + values.selectPairID
+</expressions>
+
+***********************************************************************************************************
+	STIMULI - IMAGE ITEMS
+***********************************************************************************************************
+
+<item all_voronoi_images>
+// --- ORIGINAL CLEAN (1-20) ---
+/ 1="Voronoi_original_pair1_clean_border.jpg"
+/ 2="Voronoi_original_pair2_clean_border.jpg"
+/ 3="Voronoi_original_pair3_clean_border.jpg"
+/ 4="Voronoi_original_pair4_clean_border.jpg"
+/ 5="Voronoi_original_pair5_clean_border.jpg"
+/ 6="Voronoi_original_pair6_clean_border.jpg"
+/ 7="Voronoi_original_pair7_clean_border.jpg"
+/ 8="Voronoi_original_pair8_clean_border.jpg"
+/ 9="Voronoi_original_pair9_clean_border.jpg"
+/ 10="Voronoi_original_pair10_clean_border.jpg"
+/ 11="Voronoi_original_pair11_clean_border.jpg"
+/ 12="Voronoi_original_pair12_clean_border.jpg"
+/ 13="Voronoi_original_pair13_clean_border.jpg"
+/ 14="Voronoi_original_pair14_clean_border.jpg"
+/ 15="Voronoi_original_pair15_clean_border.jpg"
+/ 16="Voronoi_original_pair16_clean_border.jpg"
+/ 17="Voronoi_original_pair17_clean_border.jpg"
+/ 18="Voronoi_original_pair18_clean_border.jpg"
+/ 19="Voronoi_original_pair19_clean_border.jpg"
+/ 20="Voronoi_original_pair20_clean_border.jpg"
+// --- ORIGINAL BLUE (21-40) ---
+/ 21="Voronoi_original_pair1_blue_border.jpg"
+/ 22="Voronoi_original_pair2_blue_border.jpg"
+/ 23="Voronoi_original_pair3_blue_border.jpg"
+/ 24="Voronoi_original_pair4_blue_border.jpg"
+/ 25="Voronoi_original_pair5_blue_border.jpg"
+/ 26="Voronoi_original_pair6_blue_border.jpg"
+/ 27="Voronoi_original_pair7_blue_border.jpg"
+/ 28="Voronoi_original_pair8_blue_border.jpg"
+/ 29="Voronoi_original_pair9_blue_border.jpg"
+/ 30="Voronoi_original_pair10_blue_border.jpg"
+/ 31="Voronoi_original_pair11_blue_border.jpg"
+/ 32="Voronoi_original_pair12_blue_border.jpg"
+/ 33="Voronoi_original_pair13_blue_border.jpg"
+/ 34="Voronoi_original_pair14_blue_border.jpg"
+/ 35="Voronoi_original_pair15_blue_border.jpg"
+/ 36="Voronoi_original_pair16_blue_border.jpg"
+/ 37="Voronoi_original_pair17_blue_border.jpg"
+/ 38="Voronoi_original_pair18_blue_border.jpg"
+/ 39="Voronoi_original_pair19_blue_border.jpg"
+/ 40="Voronoi_original_pair20_blue_border.jpg"
+// --- ORIGINAL ORANGE (41-60) ---
+/ 41="Voronoi_original_pair1_orange_border.jpg"
+/ 42="Voronoi_original_pair2_orange_border.jpg"
+/ 43="Voronoi_original_pair3_orange_border.jpg"
+/ 44="Voronoi_original_pair4_orange_border.jpg"
+/ 45="Voronoi_original_pair5_orange_border.jpg"
+/ 46="Voronoi_original_pair6_orange_border.jpg"
+/ 47="Voronoi_original_pair7_orange_border.jpg"
+/ 48="Voronoi_original_pair8_orange_border.jpg"
+/ 49="Voronoi_original_pair9_orange_border.jpg"
+/ 50="Voronoi_original_pair10_orange_border.jpg"
+/ 51="Voronoi_original_pair11_orange_border.jpg"
+/ 52="Voronoi_original_pair12_orange_border.jpg"
+/ 53="Voronoi_original_pair13_orange_border.jpg"
+/ 54="Voronoi_original_pair14_orange_border.jpg"
+/ 55="Voronoi_original_pair15_orange_border.jpg"
+/ 56="Voronoi_original_pair16_orange_border.jpg"
+/ 57="Voronoi_original_pair17_orange_border.jpg"
+/ 58="Voronoi_original_pair18_orange_border.jpg"
+/ 59="Voronoi_original_pair19_orange_border.jpg"
+/ 60="Voronoi_original_pair20_orange_border.jpg"
+// --- WARPED CLEAN (61-80) ---
+/ 61="Voronoi_warped_pair1_clean_border.jpg"
+/ 62="Voronoi_warped_pair2_clean_border.jpg"
+/ 63="Voronoi_warped_pair3_clean_border.jpg"
+/ 64="Voronoi_warped_pair4_clean_border.jpg"
+/ 65="Voronoi_warped_pair5_clean_border.jpg"
+/ 66="Voronoi_warped_pair6_clean_border.jpg"
+/ 67="Voronoi_warped_pair7_clean_border.jpg"
+/ 68="Voronoi_warped_pair8_clean_border.jpg"
+/ 69="Voronoi_warped_pair9_clean_border.jpg"
+/ 70="Voronoi_warped_pair10_clean_border.jpg"
+/ 71="Voronoi_warped_pair11_clean_border.jpg"
+/ 72="Voronoi_warped_pair12_clean_border.jpg"
+/ 73="Voronoi_warped_pair13_clean_border.jpg"
+/ 74="Voronoi_warped_pair14_clean_border.jpg"
+/ 75="Voronoi_warped_pair15_clean_border.jpg"
+/ 76="Voronoi_warped_pair16_clean_border.jpg"
+/ 77="Voronoi_warped_pair17_clean_border.jpg"
+/ 78="Voronoi_warped_pair18_clean_border.jpg"
+/ 79="Voronoi_warped_pair19_clean_border.jpg"
+/ 80="Voronoi_warped_pair20_clean_border.jpg"
+// --- WARPED BLUE (81-100) ---
+/ 81="Voronoi_warped_pair1_blue_border.jpg"
+/ 82="Voronoi_warped_pair2_blue_border.jpg"
+/ 83="Voronoi_warped_pair3_blue_border.jpg"
+/ 84="Voronoi_warped_pair4_blue_border.jpg"
+/ 85="Voronoi_warped_pair5_blue_border.jpg"
+/ 86="Voronoi_warped_pair6_blue_border.jpg"
+/ 87="Voronoi_warped_pair7_blue_border.jpg"
+/ 88="Voronoi_warped_pair8_blue_border.jpg"
+/ 89="Voronoi_warped_pair9_blue_border.jpg"
+/ 90="Voronoi_warped_pair10_blue_border.jpg"
+/ 91="Voronoi_warped_pair11_blue_border.jpg"
+/ 92="Voronoi_warped_pair12_blue_border.jpg"
+/ 93="Voronoi_warped_pair13_blue_border.jpg"
+/ 94="Voronoi_warped_pair14_blue_border.jpg"
+/ 95="Voronoi_warped_pair15_blue_border.jpg"
+/ 96="Voronoi_warped_pair16_blue_border.jpg"
+/ 97="Voronoi_warped_pair17_blue_border.jpg"
+/ 98="Voronoi_warped_pair18_blue_border.jpg"
+/ 99="Voronoi_warped_pair19_blue_border.jpg"
+/ 100="Voronoi_warped_pair20_blue_border.jpg"
+/ 101="Voronoi_warped_pair1_orange_border.jpg"
+/ 102="Voronoi_warped_pair2_orange_border.jpg"
+/ 103="Voronoi_warped_pair3_orange_border.jpg"
+/ 104="Voronoi_warped_pair4_orange_border.jpg"
+/ 105="Voronoi_warped_pair5_orange_border.jpg"
+/ 106="Voronoi_warped_pair6_orange_border.jpg"
+/ 107="Voronoi_warped_pair7_orange_border.jpg"
+/ 108="Voronoi_warped_pair8_orange_border.jpg"
+/ 109="Voronoi_warped_pair9_orange_border.jpg"
+/ 110="Voronoi_warped_pair10_orange_border.jpg"
+/ 111="Voronoi_warped_pair11_orange_border.jpg"
+/ 112="Voronoi_warped_pair12_orange_border.jpg"
+/ 113="Voronoi_warped_pair13_orange_border.jpg"
+/ 114="Voronoi_warped_pair14_orange_border.jpg"
+/ 115="Voronoi_warped_pair15_orange_border.jpg"
+/ 116="Voronoi_warped_pair16_orange_border.jpg"
+/ 117="Voronoi_warped_pair17_orange_border.jpg"
+/ 118="Voronoi_warped_pair18_orange_border.jpg"
+/ 119="Voronoi_warped_pair19_orange_border.jpg"
+/ 120="Voronoi_warped_pair20_orange_border.jpg"
+/ 121="Voronoi_warped_pair20_orange_border - Copy.jpg"
+</item>
+
+***********************************************************************************************************
+	PICTURE STIMULI
+***********************************************************************************************************
+
+<picture leftImage>
+/ items = all_voronoi_images
+/ select = values.currentLeftIndex
+/ position = (25%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+<picture rightImage>
+/ items = all_voronoi_images
+/ select = values.currentRightIndex
+/ position = (75%, 50%)
+/ size = (parameters.stimSize, parameters.stimSize)
+/ valign = center
+/ halign = center
+</picture>
+
+***********************************************************************************************************
+	TEXT STIMULI
+***********************************************************************************************************
+
+<text fixationCross>
+/ items = ("+")
+/ fontstyle = ("Arial", 5%)
+/ position = (50%, 50%)
+/ txcolor = white
+</text>
+
+<text trialInstructions>
+/ items = ("<%parameters.questionPrompt%>")
+/ fontstyle = ("Arial", 2.5%)
+/ position = (50%, 12%)
+/ txcolor = white
+</text>
+
+<text responseReminder>
+/ items = ("Use the mouse to click on your preferred image")
+/ fontstyle = ("Arial", 1.8%)
+/ position = (50%, 88%)
+/ txcolor = (180, 180, 180)
+</text>
+
+<text finishMessage>
+/ items = ("Block Complete! Take a brief rest.")
+/ fontstyle = ("Arial", 3%)
+/ position = (50%, 50%)
+/ txcolor = white
+</text>
+
+<text endExptMessage>
+/ items = ("Thank you for completing this task!
+
+Your responses have been recorded.")
+/ fontstyle = ("Arial", 3%)
+/ position = (50%, 50%)
+/ txcolor = white
+</text>
+
+***********************************************************************************************************
+	TRIALS
+***********************************************************************************************************
+
+<trial fixation>
+/ stimulusframes = [1 = fixationCross]
+/ timeout = parameters.fixationDuration
+/ recorddata = false
+/ branch = { return trial.show_images; }
+</trial>
+
+<trial show_images>
+/ stimulusframes = [1 = leftImage, rightImage, trialInstructions, responseReminder]
+/ inputdevice = mouse
+/ validresponse = (leftImage, rightImage)
+/ ontrialend = {
+	values.trialCount_total += 1;
+
+	// Determine response (compared as a string)
+	if (trial.show_images.response == "leftImage") {
+		if (values.selectPosition == 1) {
+			values.responseCode = 1;
+			values.originalPosition = "left";
+		} else {
+			values.responseCode = -1;
+			values.originalPosition = "right";
+		}
+	} else {
+		if (values.selectPosition == 1) {
+			values.responseCode = -1;
+			values.originalPosition = "left";
+		} else {
+			values.responseCode = 1;
+			values.originalPosition = "right";
+		}
+	}
+
+	// Update block-specific counts
+	if (values.currentBlockType == "block1A") {
+		values.trialCount_block1A += 1;
+		values.block1A_totalLatency += trial.show_images.latency;
+		if (values.responseCode == 1) {
+			values.block1A_originalCount += 1;
+		} else {
+			values.block1A_warpedCount += 1;
+		}
+	} else if (values.currentBlockType == "block1B") {
+		values.trialCount_block1B += 1;
+		values.block1B_totalLatency += trial.show_images.latency;
+		
+		// Fixed Logic: Ensure the chosen side maps to the correct original/warped border metadata
+		if (trial.show_images.response == "leftImage") {
+			if (values.selectPosition == 1) {
+				values.borderResponseCode = values.currentOriginalBorder;
+			} else {
+				values.borderResponseCode = values.currentWarpedBorder;
+			}
+		} else {
+			if (values.selectPosition == 1) {
+				values.borderResponseCode = values.currentWarpedBorder;
+			} else {
+				values.borderResponseCode = values.currentOriginalBorder;
+			}
+		}
+		
+		if (values.borderResponseCode == "clean") {
+			values.block1B_cleanCount += 1;
+		} else if (values.borderResponseCode == "blue") {
+			values.block1B_blueCount += 1;
+		} else {
+			values.block1B_orangeCount += 1;
+		}
+	} else if (values.currentBlockType == "block2A") {
+		values.trialCount_block2A += 1;
+		values.block2A_totalLatency += trial.show_images.latency;
+		if (values.responseCode == 1) {
+			values.block2A_originalCount += 1;
+		} else {
+			values.block2A_warpedCount += 1;
+		}
+	} else if (values.currentBlockType == "block2B") {
+		values.trialCount_block2B += 1;
+		values.block2B_totalLatency += trial.show_images.latency;
+		if (values.responseCode == 1) {
+			values.block2B_originalCount += 1;
+		} else {
+			values.block2B_warpedCount += 1;
+		}
+	} else if (values.currentBlockType == "practice") {
+		values.trialCount_practice += 1;
+	}
+}
+</trial>
+
+***********************************************************************************************************
+	SELECTOR TRIALS
+***********************************************************************************************************
+
+<trial selector_practice>
+/ ontrialbegin = {
+	values.currentBlockType = "practice";
+	values.currentTrialType = "pattern_same_border";
+
+	values.selectPairID = parseInt(list.pairIDs.nextValue, 10);
+	values.selectBorderType = parseInt(list.borderTypes.nextValue, 10);
+
+	// Metadata
+	values.currentOriginalIndex = values.selectPairID;
+	values.currentWarpedIndex = values.selectPairID;
+	
+	// Set border names
+	if (values.selectBorderType == 0) {
+		values.currentOriginalBorder = "clean";
+		values.currentWarpedBorder = "clean";
+	} else if (values.selectBorderType == 1) {
+		values.currentOriginalBorder = "blue";
+		values.currentWarpedBorder = "blue";
+	} else {
+		values.currentOriginalBorder = "orange";
+		values.currentWarpedBorder = "orange";
+	}
+
+	values.selectPosition = parseInt(list.positions.nextValue, 10);
+
+	var idxOrig = (values.selectBorderType * 20) + values.selectPairID;
+	var idxWarp = 60 + (values.selectBorderType * 20) + values.selectPairID;
+
+	if (values.selectPosition == 1) {
+		values.currentLeftIndex = parseInt(idxOrig, 10);
+		values.currentRightIndex = parseInt(idxWarp, 10);
+	} else {
+		values.currentLeftIndex = parseInt(idxWarp, 10);
+		values.currentRightIndex = parseInt(idxOrig, 10);
+	}
+}
+/ trialduration = 0
+/ recorddata = false
+/ branch = { return trial.fixation; }
+</trial>
+
+<trial selector_1A>
+/ ontrialbegin = {
+	values.currentBlockType = "block1A";
+	values.currentTrialType = "pattern_same_border";
+
+	values.selectPairID = parseInt(list.pairIDs.nextValue, 10);
+	values.selectBorderType = parseInt(list.borderTypes.nextValue, 10);
+
+	// Metadata
+	values.currentOriginalIndex = values.selectPairID;
+	values.currentWarpedIndex = values.selectPairID;
+	
+	// Set border names
+	if (values.selectBorderType == 0) {
+		values.currentOriginalBorder = "clean";
+		values.currentWarpedBorder = "clean";
+	} else if (values.selectBorderType == 1) {
+		values.currentOriginalBorder = "blue";
+		values.currentWarpedBorder = "blue";
+	} else {
+		values.currentOriginalBorder = "orange";
+		values.currentWarpedBorder = "orange";
+	}
+
+	values.selectPosition = parseInt(list.positions.nextValue, 10);
+
+	var idxOrig = (values.selectBorderType * 20) + values.selectPairID;
+	var idxWarp = 60 + (values.selectBorderType * 20) + values.selectPairID;
+
+	if (values.selectPosition == 1) {
+		values.currentLeftIndex = parseInt(idxOrig, 10);
+		values.currentRightIndex = parseInt(idxWarp, 10);
+	} else {
+		values.currentLeftIndex = parseInt(idxWarp, 10);
+		values.currentRightIndex = parseInt(idxOrig, 10);
+	}
+}
+/ trialduration = 0
+/ recorddata = false
+/ branch = { return trial.fixation; }
+</trial>
+
+<trial selector_1B>
+/ ontrialbegin = {
+	values.currentBlockType = "block1B";
+
+	values.selectPairID = parseInt(list.pairIDs.nextValue, 10);
+	values.selectBorderCombo = parseInt(list.borderCombos_1B.nextValue, 10);
+	values.selectPatternType = parseInt(list.patternTypes.nextValue, 10);
+
+	// Identify Borders for the combo
+	var b1 = 0;
+	var b2 = 0;
+	if (values.selectBorderCombo == 1) {
+		b1 = 1; b2 = 2; // blue vs orange
+	} else if (values.selectBorderCombo == 2) {
+		b1 = 1; b2 = 0; // blue vs clean
+	} else {
+		b1 = 2; b2 = 0; // orange vs clean
+	}
+
+	// Metadata
+	values.currentOriginalIndex = values.selectPairID;
+	values.currentWarpedIndex = values.selectPairID;
+
+	var baseOffset = 0;
+	if (values.selectPatternType == 0) {
+		values.currentTrialType = "border_same_original";
+		baseOffset = 0;
+	} else {
+		values.currentTrialType = "border_same_warped";
+		baseOffset = 60;
+	}
+
+	var idxLeft = baseOffset + (b1 * 20) + values.selectPairID;
+	var idxRight = baseOffset + (b2 * 20) + values.selectPairID;
+
+	// Set border names
+	if (b1 == 0) {
+		values.currentOriginalBorder = "clean";
+	} else if (b1 == 1) {
+		values.currentOriginalBorder = "blue";
+	} else {
+		values.currentOriginalBorder = "orange";
+	}
+
+	if (b2 == 0) {
+		values.currentWarpedBorder = "clean";
+	} else if (b2 == 1) {
+		values.currentWarpedBorder = "blue";
+	} else {
+		values.currentWarpedBorder = "orange";
+	}
+
+	values.selectPosition = parseInt(list.positions.nextValue, 10);
+
+	if (values.selectPosition == 1) {
+		values.currentLeftIndex = parseInt(idxLeft, 10);
+		values.currentRightIndex = parseInt(idxRight, 10);
+	} else {
+		values.currentLeftIndex = parseInt(idxRight, 10);
+		values.currentRightIndex = parseInt(idxLeft, 10);
+	}
+}
+/ trialduration = 0
+/ recorddata = false
+/ branch = { return trial.fixation; }
+</trial>
+
+<trial selector_2A>
+/ ontrialbegin = {
+	values.currentBlockType = "block2A";
+	values.currentTrialType = "pattern_cross_border";
+
+	values.selectBorderCombo = parseInt(list.borderCombos_2A.nextValue, 10);
+	values.selectPairID = parseInt(list.pairIDs.nextValue, 10);
+
+	// Determine Borders for Original (bOrig) and Warped (bWarp)
+	var bOrig = 0;
+	var bWarp = 0;
+	if (values.selectBorderCombo == 1) {
+		bOrig = 1; bWarp = 2; // blue vs orange
+	} else if (values.selectBorderCombo == 2) {
+		bOrig = 1; bWarp = 0; // blue vs clean
+	} else if (values.selectBorderCombo == 3) {
+		bOrig = 2; bWarp = 1; // orange vs blue
+	} else if (values.selectBorderCombo == 4) {
+		bOrig = 2; bWarp = 0; // orange vs clean
+	} else if (values.selectBorderCombo == 5) {
+		bOrig = 0; bWarp = 1; // clean vs blue
+	} else {
+		bOrig = 0; bWarp = 2; // clean vs orange
+	}
+
+	// Metadata
+	values.currentOriginalIndex = values.selectPairID;
+	values.currentWarpedIndex = values.selectPairID;
+
+	var idxOrig = (bOrig * 20) + values.selectPairID;
+	var idxWarp = 60 + (bWarp * 20) + values.selectPairID;
+
+	// Set border names
+	if (bOrig == 0) {
+		values.currentOriginalBorder = "clean";
+	} else if (bOrig == 1) {
+		values.currentOriginalBorder = "blue";
+	} else {
+		values.currentOriginalBorder = "orange";
+	}
+
+	if (bWarp == 0) {
+		values.currentWarpedBorder = "clean";
+	} else if (bWarp == 1) {
+		values.currentWarpedBorder = "blue";
+	} else {
+		values.currentWarpedBorder = "orange";
+	}
+
+	values.selectPosition = parseInt(list.positions.nextValue, 10);
+
+	if (values.selectPosition == 1) {
+		values.currentLeftIndex = parseInt(idxOrig, 10);
+		values.currentRightIndex = parseInt(idxWarp, 10);
+	} else {
+		values.currentLeftIndex = parseInt(idxWarp, 10);
+		values.currentRightIndex = parseInt(idxOrig, 10);
+	}
+}
+/ trialduration = 0
+/ recorddata = false
+/ branch = { return trial.fixation; }
+</trial>
+
+<trial selector_2B>
+/ ontrialbegin = {
+	values.currentBlockType = "block2B";
+	values.currentTrialType = "random_pairs_varied_borders";
+
+	// Using standard Javascript Math object functions to replace 'rand()' compatibility
+	var i = Math.floor(Math.random() * 20) + 1;
+	var j = Math.floor(Math.random() * 20) + 1;
+	while (j == i) {
+		j = Math.floor(Math.random() * 20) + 1;
+	}
+
+	values.currentOriginalIndex = i;
+	values.currentWarpedIndex = j;
+
+	// Random borders
+	var bOrig = Math.floor(Math.random() * 3);
+	var bWarp = Math.floor(Math.random() * 3);
+
+	var idxOrig = (bOrig * 20) + i;
+	var idxWarp = 60 + (bWarp * 20) + j;
+
+	// Set border names
+	if (bOrig == 0) {
+		values.currentOriginalBorder = "clean";
+	} else if (bOrig == 1) {
+		values.currentOriginalBorder = "blue";
+	} else {
+		values.currentOriginalBorder = "orange";
+	}
+
+	if (bWarp == 0) {
+		values.currentWarpedBorder = "clean";
+	} else if (bWarp == 1) {
+		values.currentWarpedBorder = "blue";
+	} else {
+		values.currentWarpedBorder = "orange";
+	}
+
+	values.selectPosition = parseInt(list.positions.nextValue, 10);
+
+	if (values.selectPosition == 1) {
+		values.currentLeftIndex = parseInt(idxOrig, 10);
+		values.currentRightIndex = parseInt(idxWarp, 10);
+	} else {
+		values.currentLeftIndex = parseInt(idxWarp, 10);
+		values.currentRightIndex = parseInt(idxOrig, 10);
+	}
+}
+/ trialduration = 0
+/ recorddata = false
+/ branch = { return trial.fixation; }
+</trial>
+
+<trial finish_block>
+/ stimulusframes = [1 = finishMessage]
+/ timeout = 2000
+/ recorddata = false
+</trial>
+
+<trial finish_expt>
+/ stimulusframes = [1 = endExptMessage]
+/ timeout = 3000
+/ recorddata = false
+</trial>
+
+***********************************************************************************************************
+	BLOCKS
+***********************************************************************************************************
+
+<block practice>
+/ preinstructions = (welcome, practiceInstructions)
+/ trials = [1-10 = selector_practice; 11 = finish_block]
+</block>
+
+<block block1A>
+/ preinstructions = (block1A_instruct)
+// 60 trials: 20 pairs * 3 borders
+/ trials = [1-60 = selector_1A; 61 = finish_block]
+</block>
+
+<block block1B>
+/ preinstructions = (block1B_instruct)
+// 120 trials: 20 pairs * 2 types * 3 border combos
+/ trials = [1-120 = selector_1B; 121 = finish_block]
+</block>
+
+<block block2A>
+/ preinstructions = (block2A_instruct)
+// 120 trials: 20 pairs * 6 border combos
+/ trials = [1-120 = selector_2A; 121 = finish_block]
+</block>
+
+<block block2B>
+/ preinstructions = (block2B_instruct)
+// 60 trials random
+/ trials = [1-60 = selector_2B; 61 = finish_block]
+</block>
+
+<block end>
+/ trials = [1 = finish_expt]
+</block>
+
+***********************************************************************************************************
+	EXPERIMENTS (LATIN SQUARE GROUPS)
+***********************************************************************************************************
+
+// Group 1: 1A -> 1B -> 2A -> 2B
+<expt group1>
+/ subjects = (1 of 6)
+/ blocks = [1=practice; 2=block1A; 3=block1B; 4=block2A; 5=block2B; 6=end]
+</expt>
+
+// Group 2: 1A -> 2A -> 1B -> 2B
+<expt group2>
+/ subjects = (2 of 6)
+/ blocks = [1=practice; 2=block1A; 3=block2A; 4=block1B; 5=block2B; 6=end]
+</expt>
+
+// Group 3: 1B -> 1A -> 2A -> 2B
+<expt group3>
+/ subjects = (3 of 6)
+/ blocks = [1=practice; 2=block1B; 3=block1A; 4=block2A; 5=block2B; 6=end]
+</expt>
+
+// Group 4: 1B -> 2A -> 1A -> 2B
+<expt group4>
+/ subjects = (4 of 6)
+/ blocks = [1=practice; 2=block1B; 3=block2A; 4=block1A; 5=block2B; 6=end]
+</expt>
+
+// Group 5: 2A -> 1A -> 1B -> 2B
+<expt group5>
+/ subjects = (5 of 6)
+/ blocks = [1=practice; 2=block2A; 3=block1A; 4=block1B; 5=block2B; 6=end]
+</expt>
+
+// Group 6: 2A -> 1B -> 1A -> 2B
+<expt group6>
+/ subjects = (6 of 6)
+/ blocks = [1=practice; 2=block2A; 3=block1B; 4=block1A; 5=block2B; 6=end]
+</expt>
+
+***********************************************************************************************************
+	DATA OUTPUT
+***********************************************************************************************************
+
+<data>
+/ columns = (
+	build, computer.platform, date, time, subject, group, session,
+	blockcode, trialnum,
+	values.currentBlockType, values.currentTrialType,
+	values.trialCount_total,
+	values.currentOriginalIndex, values.currentWarpedIndex,
+	values.currentOriginalBorder, values.currentWarpedBorder,
+	stimulusitem, stimulusitem,
+	response, values.responseCode, values.borderResponseCode,
+	values.originalPosition, latency
+)
+</data>
+
+***********************************************************************************************************
+	INSTRUCTION PAGES
+***********************************************************************************************************
+
+<instruct>
+/ fontstyle = ("Arial", 2.5%)
+/ txcolor = white
+/ windowsize = (90%, 90%)
+</instruct>
+
+<page welcome>
+^^Welcome to this study!
+^^You will view pairs of visual patterns.
+^^Your task is to select the pattern that you prefer in each pair.
+^^
+Press SPACE to continue.
+</page>
+
+<page practiceInstructions>
+^^PRACTICE
+^^
+Use the Mouse to click on the image you prefer.
+^^
+Respond based on your first impression.
+^^
+Press SPACE to begin practice.
+</page>
+
+<page block1A_instruct>
+^^BLOCK 1
+^^
+You will see pairs of patterns.
+Select the one you prefer.
+^^
+Press SPACE to start.
+</page>
+
+<page block1B_instruct>
+^^BLOCK 2
+^^
+You will see pairs of patterns.
+Pay attention to the overall look.
+Select the one you prefer.
+^^
+Press SPACE to start.
+</page>
+
+<page block2A_instruct>
+^^BLOCK 3
+^^
+Continue selecting your preferred pattern.
+Some may have different colored borders.
+Choose based on which pattern you like best.
+^^
+Press SPACE to start.
+</page>
+
+<page block2B_instruct>
+^^BLOCK 4
+^^
+Final set.
+Select the pattern you prefer.
+^^
+Press SPACE to start.
+</page>
+
+***********************************************************************************************************
+	DEFAULTS
+***********************************************************************************************************
+
+<defaults>
+/ canvasaspectratio = (4, 3)
+/ fontstyle = ("Arial", 2%)
+/ screencolor = White
+/ txcolor = Black
+</defaults>
+
+
